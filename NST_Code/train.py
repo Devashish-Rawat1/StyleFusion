@@ -13,11 +13,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser() #object for parsing command line arguments
     
     # Arguments for specifying the locations of the content and style datasets, as well as the pre-trained VGG model
-    parser.add_argument('--content_dir', type=str, default='"C:\Users\devas\Desktop\Projects\StyleFusion\NST_Code\content_data"',
+    parser.add_argument('--content_dir', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/content_data",
                         help='Location of content dataset')
-    parser.add_argument('--style_dir', type=str, default='"C:\Users\devas\Desktop\Projects\StyleFusion\NST_Code\style_data"',
+    parser.add_argument('--style_dir', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/style_data",
                         help='Location of style dataset')
-    parser.add_argument('--vgg', type=str, default='"C:\Users\devas\Desktop\Projects\StyleFusion\NST_Code\vgg_normalised.pth"', 
+    parser.add_argument('--vgg', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/vgg_normalised.pth", 
                         help='Location of pre-trained VGG') #pre-trained VGG model is used as encoder for feature extraction
     parser.add_argument('--experiment', type=str, default='experiment1',
                         help='Name of experiment')
@@ -109,6 +109,7 @@ def main():
     decoder = Decoder().to(device)
 
     optimizer = optim.Adam(decoder.parameters(), lr=args.lr)
+
     # The LambdaLR scheduler is used to adjust the learning rate during training. The learning rate is decayed according to the formula: lr = initial_lr / (1 + lr_decay * epoch), where initial_lr is the learning rate specified in the command line arguments, lr_decay is the learning rate decay factor, and epoch is the current epoch number. This allows for a gradual decrease in the learning rate as training progresses, which can help improve convergence and prevent overfitting.
     scheduler = optim.lr_scheduler.LambdaLR(
         optimizer,
@@ -140,10 +141,10 @@ def main():
         # The training loop iterates over the content and style data loaders simultaneously using the zip function. For each batch of content and style images, the following steps are performed:
         for content_batch, style_batch in progress_bar:
 
-            content_batch = content_batch.to(device)
+            content_batch = content_batch.to(device) # The content_batch and style_batch tensors are moved to the specified device (GPU or CPU) using the to() method. This allows for efficient computation during training, as the data will be processed on the appropriate hardware. By moving the batches to the device, we can take advantage of GPU acceleration if available, which can significantly speed up the training process.
             style_batch = style_batch.to(device)
             
-            c_feats = encoder(content_batch) #
+            c_feats = encoder(content_batch) # The content and style batches are passed through the encoder to extract their respective features. The encoder is a pre-trained VGG model that has been modified to output feature maps at different layers. The extracted features will be used to compute the content and style losses during training.
             s_feats = encoder(style_batch)
 
             t = adaptive_instance_normalization(c_feats[-1], s_feats[-1])
@@ -167,22 +168,25 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
+            
+            # The progress bar is updated with the current loss values for the total loss, content loss, and style loss. This allows us to monitor the training process in real-time and see how the losses are evolving as the model learns. By providing this feedback, we can gain insights into the training dynamics and make adjustments if necessary.
             progress_bar.set_description(f'Loss:{loss.item():4f}, Content Loss: {loss_c.item():4f}, Style Loss: {loss_s.item():4f}')
 
             running_loss += loss.item()
             running_closs += loss_c.item()
             running_sloss += loss_s.item()
         
-        scheduler.step()
+        scheduler.step() # The scheduler's step() method is called at the end of each epoch to update the learning rate according to the defined schedule. In this case, the learning rate will be decayed based on the formula specified in the LambdaLR scheduler, which allows for a gradual decrease in the learning rate as training progresses. This can help improve convergence and prevent overfitting by allowing the model to make smaller updates to the weights as it gets closer to an optimal solution.
 
         running_loss /= len(content_dataloader)
         running_closs /= len(content_dataloader)
         running_sloss /= len(content_dataloader)
-
+        
+        # The loss values for the total loss, content loss, and style loss are printed to the console at specified intervals defined by the log_interval argument. This allows us to track the training progress and see how the losses are evolving over time. By providing this information, we can gain insights into the training dynamics and make adjustments if necessary.
         if (epoch+1) % args.log_interval == 0:
             tqdm.write(f'Iter {epoch+1}: Loss:{running_loss:4f}, Content Loss: {running_closs:4f}, Style Loss: {running_sloss:4f}')
-
+        
+        # The model's state and optimizer's state are saved at specified intervals defined by the save_interval argument. This allows us to checkpoint the training process and resume it later if needed. Additionally, a sample output image is generated by concatenating the content batch, style batch, and generated images (g) and saving it to the specified directory. This provides a visual representation of the model's performance at different stages of training, allowing us to see how well the style transfer is working.
         if (epoch+1) % args.save_interval == 0:
             torch.save(decoder.state_dict(), save_dir / f'decoder_{epoch+1}.pth')
             torch.save(optimizer.state_dict(), save_dir / f'optimizer_{epoch+1}.pth')

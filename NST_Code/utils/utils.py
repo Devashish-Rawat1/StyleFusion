@@ -42,6 +42,7 @@ def get_transform(size, crop, final_size):
     return transforms.Compose(transform_list)
         
 
+# The adaptive_instance_normalization function is a key component of the style transfer process. It takes two feature maps as input: content_feat and style_feat. The function first calculates the mean and standard deviation of both the content and style feature maps using the calc_mean_std function. Then, it normalizes the content feature map by subtracting its mean and dividing by its standard deviation. Finally, it scales and shifts the normalized content feature map using the mean and standard deviation of the style feature map to produce the output that combines the content and style information.
 def adaptive_instance_normalization(content_feat, style_feat):
     # [batch size, channels, h, w]
     size = content_feat.size()
@@ -50,6 +51,8 @@ def adaptive_instance_normalization(content_feat, style_feat):
     normalized_content_feat = (content_feat - content_mean.expand(size)) / content_std.expand(size)
     return normalized_content_feat * style_std.expand(size) + style_mean.expand(size)
 
+
+# The calc_mean_std function calculates the mean and standard deviation of a given feature map (feat). It first checks that the input feature map has four dimensions (batch size, channels, height, width). Then, it computes the mean and variance across the spatial dimensions (height and width) for each channel and batch. The mean is calculated by reshaping the feature map and taking the mean along the appropriate dimension, while the variance is calculated similarly but with an additional step to ensure numerical stability by adding a small epsilon value. Finally, the standard deviation is obtained by taking the square root of the variance.
 def calc_mean_std(feat, eps=1e-5):
     # [batch size, channels, h, w]
     size = feat.size()

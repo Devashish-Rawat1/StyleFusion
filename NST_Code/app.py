@@ -1,28 +1,29 @@
 import os
 import torch
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-from flask_wtf import FlaskForm
-from flask_bootstrap import Bootstrap
-from werkzeug.utils import secure_filename
-from wtforms import FileField, SubmitField, FloatField, HiddenField
-from wtforms.validators import InputRequired
+from flask_wtf import FlaskForm  # For handling forms in Flask
+from flask_bootstrap import Bootstrap  # For styling the form with Bootstrap
+from werkzeug.utils import secure_filename # For securely handling file names
+from wtforms import FileField, SubmitField, FloatField, HiddenField # For defining form fields
+from wtforms.validators import InputRequired # For validating form input
 from PIL import Image
 from torchvision import transforms
-import io
-
+import io # For handling in-memory file operations
+ 
 # Import your existing AdaIN code
 from utils.models import VGGEncoder, Decoder
 from utils.utils import adaptive_instance_normalization, calc_mean_std
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['SECRET_KEY'] = 'supersecretkey' # In production, use a secure key and keep it secret
+app.config['UPLOAD_FOLDER'] = 'static/uploads'  # Directory to save uploaded and generated images
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-Bootstrap(app)
+Bootstrap(app) 
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# Define the form for uploading images and setting alpha
 class UploadForm(FlaskForm):
     content = FileField('Content Image')
     style = FileField('Style Image')
@@ -31,19 +32,21 @@ class UploadForm(FlaskForm):
     alpha = FloatField('Alpha', default=1.0)
     submit = SubmitField('Transfer Style')
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
 
 encoder = VGGEncoder('vgg_normalised.pth').to(device)
 decoder = Decoder().to(device)
-decoder.load_state_dict(torch.load('/home/ubuntu/Desktop/NST_Code/experiment/final_exp/decoder_final.pth'))
+decoder.load_state_dict(torch.load('"C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/experiment/final_exp/decoder_final.pth'))
 
 encoder.eval()
 decoder.eval()
 
+# Check if a file has an allowed extension
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# Perform style transfer using the AdaIN method
 def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
     content_transform = transforms.Compose([
         transforms.Resize(512),
@@ -69,7 +72,7 @@ def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
 
     return stylized_image
 
-
+# Save the generated image to the specified path
 def save_image(image, path):
     image = image.cpu().clone()
     image = image.squeeze(0)
@@ -78,7 +81,7 @@ def save_image(image, path):
     image.save(path)
 
 
-
+# Define the main route for the application, handling both GET and POST requests
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = UploadForm()
@@ -86,7 +89,8 @@ def index():
     content_filename = None
     style_filename = None
     error = None
-
+    
+    # Handle form submission and perform style transfer
     if form.validate_on_submit():
         if form.content.data and form.content.data.filename:
             if allowed_file(form.content.data.filename):
@@ -131,17 +135,18 @@ def index():
     return render_template('index.html', form=form, result_image=result_image, content_image=content_filename,
                            style_image=style_filename, error=error)
 
-
+# Route to serve uploaded and generated images
 @app.route('/uploads/<filename>')
 def send_image(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+# Route to serve example images from the 'examples' directory
 @app.route('/examples/<path:filename>')
 def send_example(filename):
     return send_from_directory('examples', filename)
 
-
+# Run the Flask application
 if __name__ == '__main__':
     from werkzeug.serving import run_simple
     run_simple('localhost', 5000, app, use_reloader=True, use_debugger=True)
