@@ -48,6 +48,9 @@ AdaIN(x, y) = sigma(y) * ((x - mu(x)) / sigma(x)) + mu(y)
 
 **Loss** — Content loss is computed as MSE between the decoded output features and the AdaIN target at `relu4_1`. Style loss is computed as MSE between the channel-wise means and standard deviations of the output and style features across all four VGG relu layers.
 
+![AdaIN Style Transfer Architecture](Demo_IO_Images/adain_algo.png)
+*Figure: An overview of the style transfer algorithm. A fixed VGG-19 encoder encodes both content and style images. The AdaIN layer aligns feature statistics in latent space. A learned decoder inverts the result back to pixel space. The same VGG encoder is reused to compute content loss (𝓛c) and style loss (𝓛s).*
+
 ---
 
 ## Training
@@ -136,11 +139,17 @@ The application will be available at `http://localhost:5000`.
 
 ## Deployment
 
-The repository includes a `Procfile.txt` configured for Gunicorn:
+> ⚠️ **Important Note:** This Flask application **cannot be deployed on cloud service providers such as Render, Railway, or Heroku** due to the large memory and compute requirements of the PyTorch model. These free-tier platforms do not provide sufficient RAM or GPU access to run inference reliably.
+>
+> **For a live hosted demo, use the Hugging Face Spaces deployment instead:**
+> 👉 [StyleFusion on Hugging Face Spaces](https://huggingface.co/spaces/Devashish-Rawat1/StyleFusion)
+
+This repository includes a `Procfile.txt` configured for Gunicorn, intended for local or private server deployment only:
 
 ```
 web: gunicorn --bind :$PORT app:app
 ```
+
 ---
 
 ## Research References
