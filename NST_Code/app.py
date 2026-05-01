@@ -36,7 +36,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 encoder = VGGEncoder('vgg_normalised.pth').to(device)
 decoder = Decoder().to(device)
-decoder.load_state_dict(torch.load('"C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/experiment/final_exp/decoder_final.pth'))
+
+# Load the pre-trained weights for the encoder and decoder
+decoder.load_state_dict(
+    torch.load(
+        'C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/experiment/final_exp/decoder_final.pth',
+        map_location=device
+    )
+)
 
 encoder.eval()
 decoder.eval()
