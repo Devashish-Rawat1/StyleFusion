@@ -22,7 +22,7 @@ StyleFusion/                    # Core model and application code
 │   ├── forms.py                # WTForms definitions for image upload
 │   └── templates/
 │       └── index.html          # Jinja2 frontend template
-├── Demo_IO_Images/             # Example content, style, and output images
+|
 ├── Research Papers Summary/    # Summaries of key NST research papers
 ├── code.ipynb                  # Experimentation and prototyping notebook
 ├── kaggle_train.py             # Two-phase training script (Kaggle-ready)
