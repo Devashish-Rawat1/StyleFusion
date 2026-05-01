@@ -141,13 +141,6 @@ The repository includes a `Procfile.txt` configured for Gunicorn:
 ```
 web: gunicorn --bind :$PORT app:app
 ```
-
-**Recommended platform: Hugging Face Spaces (Docker)**
-
-Given the PyTorch dependency and the computational cost of inference, Hugging Face Spaces is the most suitable free deployment target. It provides access to shared GPU resources (ZeroGPU / T4), which significantly reduces inference time compared to CPU-only platforms.
-
-Render (free tier) is a viable alternative for CPU-based serving but will result in noticeably slower inference and will spin down after periods of inactivity.
-
 ---
 
 ## Research References

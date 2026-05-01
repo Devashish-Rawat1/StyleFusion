@@ -40,7 +40,7 @@ decoder = Decoder().to(device)
 # Load the pre-trained weights for the encoder and decoder
 decoder.load_state_dict(
     torch.load(
-        'C:/Users/devas/Desktop/Projects/StyleFusion/NST_Code/experiment/final_exp/decoder_final.pth',
+        'C:/Users/devas/Desktop/Projects/StyleFusion/experiment/final_exp/decoder_final.pth',
         map_location=device
     )
 )
