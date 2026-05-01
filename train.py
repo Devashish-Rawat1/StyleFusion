@@ -13,11 +13,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser() #object for parsing command line arguments
     
     # Arguments for specifying the locations of the content and style datasets, as well as the pre-trained VGG model
-    parser.add_argument('--content_dir', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/content_data",
+    parser.add_argument('--content_dir', type=str, default="content_data",
                         help='Location of content dataset')
-    parser.add_argument('--style_dir', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/style_data",
+    parser.add_argument('--style_dir', type=str, default="style_data",
                         help='Location of style dataset')
-    parser.add_argument('--vgg', type=str, default="C:/Users/devas/Desktop/Projects/StyleFusion/vgg_normalised.pth", 
+    parser.add_argument('--vgg', type=str, default="vgg_normalised.pth", 
                         help='Location of pre-trained VGG') #pre-trained VGG model is used as encoder for feature extraction
     parser.add_argument('--experiment', type=str, default='experiment1',
                         help='Name of experiment')

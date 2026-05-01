@@ -40,7 +40,7 @@ decoder = Decoder().to(device)
 # Load the pre-trained weights for the encoder and decoder
 decoder.load_state_dict(
     torch.load(
-        'C:/Users/devas/Desktop/Projects/StyleFusion/experiment/final_exp/decoder_final.pth',
+        'experiment/final_exp/decoder_final.pth',
         map_location=device
     )
 )
@@ -56,12 +56,12 @@ def allowed_file(filename):
 # Perform style transfer using the AdaIN method
 def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
     content_transform = transforms.Compose([
-        transforms.Resize(512),
+        transforms.Resize(256),
         transforms.ToTensor()
     ])
 
     style_transform = transforms.Compose([
-        transforms.Resize(512),
+        transforms.Resize(256),
         transforms.ToTensor()
     ])
     content_image = content_transform(content_image).unsqueeze(0).to(device)
