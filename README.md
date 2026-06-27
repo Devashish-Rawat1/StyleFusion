@@ -166,8 +166,4 @@ The `Research Papers Summary/` directory contains notes on the following papers:
 Devashish Rawat  
 [GitHub](https://github.com/Devashish-Rawat1) · [Instagram](https://www.instagram.com/devashish__rawat)
 
----
-
-## License
-
 This project is released for academic and personal use. The VGG weights used for the encoder are subject to their original license terms from the Visual Geometry Group, University of Oxford.
